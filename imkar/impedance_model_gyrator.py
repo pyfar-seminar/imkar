@@ -7,7 +7,7 @@ from lcapy import Circuit, s, f, Z
 from numpy import linspace
 
 
-fs = 44100          # s⁻¹
+fs = 15000          # s⁻¹
 B = 1               # T
 l = 17.188          # m
 Sd = 1150e-4        # m²
@@ -21,7 +21,7 @@ L = 0.52e-3         # H
 n = 164.62e-6       # m / N
 w = 20.397          # Ns / m
 m = 148.9e-3        # kg
-w_v = 200           # Q / (omega * n_l)
+w_v = 20            # Q / (omega * n_l)
 
 plot_range_lin = linspace(0, fs/2, fs)    # Frequenzbereich und Auflösung
 
@@ -33,20 +33,22 @@ _Rm  = pow(M, 2) / w                 # Ersatzwert für mechanische Reibung
 _Cm  = m / pow(M, 2)                 # Ersatzwert für mechanische Masse
 _Lm  = pow(M, 2) * n                 # Ersatzwert für mechanische Nachgiebigkeit
 _Ra = pow(M, 2) / pow(Sd, 2) / w_v   # Impedanz Membranvorderseite
-_La = pow(M, 2) / pow(Sd, 2) / n_v  # Nachgiebigkeit durch geschlossenes Gehäuse
+_La = pow(M, 2) / pow(Sd, 2) / n_v   # Nachgiebigkeit durch geschlossenes Gehäuse
 
 
 # Auf elektrische Seite transformiertes Ersatzschaltbild
 
 cct = Circuit("""
     Re 1 3 %f; right
-    Le 3 2 %f; right
-    Rm 2 0 %f; down
-    Cm 2 0 %f; down
-    Lm 2 0 %f; down
-    La 2 0 %f; down
+    Le 3 4 %f; right
+    GY 5 0 4 0 %f; right
+    Rm 5 6 %f; down
+    Cm 6 7 %f; down
+    Lm 7 8 %f; down
+    TF 8 0 2 0 %f; down
+    Ca 2 0 %f; down
     Ra 2 0 %f; down
-    """ % (R, L, _Rm, _Cm, _Lm, _La, _Ra))
+    """ % (R, L, M, w, n, m, Sd, n_v, w_v))
 
 
 def input_impedance():
